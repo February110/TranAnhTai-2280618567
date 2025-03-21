@@ -17,7 +17,7 @@ class MyApp(QMainWindow):
     def call_api_gen_keys(self):
         url = "http://127.0.0.1:5000/api/rsa/generate_keys"
         try:
-            response = requests.get(url)
+            response = requests.post(url)  # Chuyển từ GET sang POST
             if response.status_code == 200:
                 data = response.json()
                 msg = QMessageBox()
@@ -28,6 +28,7 @@ class MyApp(QMainWindow):
                 self.show_error_message("Error while calling API: " + str(response.status_code))
         except requests.exceptions.RequestException as e:
             self.show_error_message(f"Error: {e}")
+
 
     def call_api_encrypt(self):
         url = "http://127.0.0.1:5000/api/rsa/encrypt"

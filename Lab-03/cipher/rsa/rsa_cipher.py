@@ -12,10 +12,11 @@ class RSACipher:
             os.makedirs(self.key_path)
 
     def generate_keys(self):
-        key = RSA.generate(self.key_size)
+        self.key_path = os.path.join(os.getcwd(), "cipher", "rsa", "keys")
+        os.makedirs(self.key_path, exist_ok=True)
+        key = RSA.generate(2048) 
         private_key = key.export_key()
         public_key = key.publickey().export_key()
-
         with open(os.path.join(self.key_path, "private.pem"), "wb") as priv_file:
             priv_file.write(private_key)
         with open(os.path.join(self.key_path, "public.pem"), "wb") as pub_file:
