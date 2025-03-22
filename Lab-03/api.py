@@ -62,8 +62,6 @@ def rsa_verify_signature():
     is_verified = rsa_cipher.verify(message, signature, public_key)
     return jsonify({'is_verified': is_verified})
 
-
-
 # ECC CIPHER ALGORITHM
 ecc_cipher = ECCCipher()
 @app.route('/api/ecc/generate_keys', methods=['GET'])
@@ -91,8 +89,6 @@ def ecc_verify_signature():
     signature = bytes.fromhex(signature_hex)
     is_verified = ecc_cipher.verify(message, signature, public_key)
     return jsonify({'is_verified': is_verified})
-
-
 
 #main function
 if __name__ == '__main__':
