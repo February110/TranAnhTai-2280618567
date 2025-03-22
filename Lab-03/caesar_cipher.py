@@ -15,7 +15,7 @@ class MyApp(QMainWindow):
         url = "http://127.0.0.1:5000/api/caesar/encrypt"
         payload = {
             "plain_text": self.ui.txt_plain_text.toPlainText(),
-            "key": self.ui.txt_key.toPlainText()  # Sửa lỗi text() → toPlainText()
+            "key": self.ui.txt_key.toPlainText() 
         }
 
         try:
@@ -55,7 +55,7 @@ class MyApp(QMainWindow):
                 print(f"Error while calling API: {response.status_code}")
 
         except requests.exceptions.RequestException as e:
-            print(f"Error: {e}")  # Sửa lỗi e.message → e
+            print(f"Error: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

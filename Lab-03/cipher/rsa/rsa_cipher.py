@@ -1,56 +1,41 @@
-from Crypto.PublicKey import RSA
-from Crypto.Cipher import PKCS1_OAEP
-from Crypto.Signature import pkcs1_15
-from Crypto.Hash import SHA256
-import os
+import rsa, os
+
+if not os.path.exists('cipher/rsa/keys'):
+    os.makedirs('cipher/rsa/keys')
 
 class RSACipher:
-    def __init__(self, key_size=2048, key_path='keys/'):
-        self.key_size = key_size
-        self.key_path = key_path
-        if not os.path.exists(self.key_path):
-            os.makedirs(self.key_path)
+    def __init__(self):
+        pass
 
     def generate_keys(self):
-        self.key_path = os.path.join(os.getcwd(), "cipher", "rsa", "keys")
-        os.makedirs(self.key_path, exist_ok=True)
-        key = RSA.generate(2048) 
-        private_key = key.export_key()
-        public_key = key.publickey().export_key()
-        with open(os.path.join(self.key_path, "private.pem"), "wb") as priv_file:
-            priv_file.write(private_key)
-        with open(os.path.join(self.key_path, "public.pem"), "wb") as pub_file:
-            pub_file.write(public_key)
+        (public_key, private_key) = rsa.newkeys(1024)
+        with open('cipher/rsa/keys/publicKey.pem', 'wb') as p:
+            p.write(public_key.save_pkcs1('PEM'))
+        with open('cipher/rsa/keys/privateKey.pem', 'wb') as p:
+            p.write(private_key.save_pkcs1('PEM'))
 
     def load_keys(self):
-        try:
-            with open(os.path.join(self.key_path, "private.pem"), "rb") as priv_file:
-                private_key = RSA.import_key(priv_file.read())
-            with open(os.path.join(self.key_path, "public.pem"), "rb") as pub_file:
-                public_key = RSA.import_key(pub_file.read())
-            return private_key, public_key
-        except FileNotFoundError:
-            raise Exception("Key files not found. Generate keys first.")
+        with open('cipher/rsa/keys/publicKey.pem', 'rb') as p:
+            public_key = rsa.PublicKey.load_pkcs1(p.read())
+        with open('cipher/rsa/keys/privateKey.pem', 'rb') as p:
+            private_key = rsa.PrivateKey.load_pkcs1(p.read())
+        return private_key, public_key
 
     def encrypt(self, message, key):
-        cipher = PKCS1_OAEP.new(key)
-        encrypted_message = cipher.encrypt(message.encode('utf-8'))
-        return encrypted_message
+        return rsa.encrypt(message.encode('ascii'), key)
 
     def decrypt(self, ciphertext, key):
-        cipher = PKCS1_OAEP.new(key)
-        decrypted_message = cipher.decrypt(ciphertext).decode('utf-8')
-        return decrypted_message
-
-    def sign(self, message, private_key):
-        h = SHA256.new(message.encode('utf-8'))
-        signature = pkcs1_15.new(private_key).sign(h)
-        return signature
-
-    def verify(self, message, signature, public_key):
-        h = SHA256.new(message.encode('utf-8'))
         try:
-            pkcs1_15.new(public_key).verify(h, signature)
-            return True
-        except (ValueError, TypeError):
+            return rsa.decrypt(ciphertext, key).decode('ascii')
+        except:
+            return False
+
+    def sign(self, message, key):
+        return rsa.sign(message.encode('ascii'), key, 'SHA-1')
+
+    def verify(self, message, signature, key):
+        try:
+            rsa.verify(message.encode('ascii'), signature, key)  
+            return True 
+        except rsa.VerificationError: 
             return False
